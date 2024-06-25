@@ -28,7 +28,21 @@ class Product(models.Model):
   inventory = models.IntegerField()
   last_update = models.DateTimeField(auto_now=True)
   collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
-  promotions = models.ManyToManyField(Promotion)
+  promotions = models.ManyToManyField(Promotion, related_name='products')
+
+class Order(models.Model):
+  PAYMENT_PENDING = 'P'
+  PAYMENT_COMPLETE = 'C'
+  PAYMENT_FAILED = 'F'
+  
+  PAYMENT_STATUS = [
+    (PAYMENT_PENDING, 'Pending'),
+    (PAYMENT_COMPLETE, 'Complete'),
+    (PAYMENT_FAILED, 'Failed')
+  ]
+  placed_at = models.DateTimeField(auto_now_add=True)
+  payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS, default=PAYMENT_PENDING)
+  customer = models.ForeignKey('Customer', on_delete=models.PROTECT, related_name='customr_order')
 
 
 class Customer(models.Model):
@@ -55,27 +69,12 @@ class Customer(models.Model):
   birth_date = models.DateField(null=True)
   # membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default='B')
   membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
-  order = models.ForeignKey('Order', on_delete=models.CASCADE)
+  order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_custumor')
   class Meta:
-    db_table = 'store_customers'
+    # db_table = 'store_customers'
     indexes = [
       models.Index(fields=['last_name', 'first_name'])
     ]
-  
-  
-class Order(models.Model):
-  PAYMENT_PENDING = 'P'
-  PAYMENT_COMPLETE = 'C'
-  PAYMENT_FAILED = 'F'
-  
-  PAYMENT_STATUS = [
-    (PAYMENT_PENDING, 'Pending'),
-    (PAYMENT_COMPLETE, 'Complete'),
-    (PAYMENT_FAILED, 'Failed')
-  ]
-  placed_at = models.DateTimeField(auto_now_add=True)
-  payment_status = models.CharField(max_length=1, choices=PAYMENT_STATUS, default=PAYMENT_PENDING)
-  customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
 
 
 class Cart(models.Model):
@@ -98,6 +97,6 @@ class OrderItem(models.Model):
 class Address(models.Model):
   street = models.CharField(max_length=255)
   city = models.CharField(max_length=255)
-  # customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True)
-  customer = models.ForeignKey(Customer, on_delete=models.CASCADE, primary_key=True)
+  customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True)
+  # customer = models.ForeignKey(Customer, on_delete=models.CASCADE, primary_key=True)
 

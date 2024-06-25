@@ -8,4 +8,4 @@ class LikedItem(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   Content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
   object_id = models.PositiveIntegerField()
-  content_onject = GenericForeignKey()
+  # content_object = GenericForeignKey()
